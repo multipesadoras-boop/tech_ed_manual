@@ -1,0 +1,8 @@
+{
+  "name": "teched-manual",
+  "version": "1.0.0",
+  "description": "TechED - Generador de Planes de Mantenimiento",
+  "dependencies": {
+    "formidable": "^3.5.1"
+  }
+}

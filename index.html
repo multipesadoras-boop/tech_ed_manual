@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechED – Generador de Planes de Mantenimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B3E;
+    --blue: #1A6BF0;
+    --blue-light: #4A8EF5;
+    --blue-pale: #E8F0FE;
+    --white: #FFFFFF;
+    --gray: #6B7280;
+    --gray-light: #F3F6FA;
+    --border: #DDE3EE;
+    --success: #10B981;
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--navy);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .nav-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: var(--navy);
+  }
+
+  .nav-logo span em {
+    color: var(--blue);
+    font-style: normal;
+  }
+
+  .nav-cta {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-cta:hover { background: #1558CC; }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    padding: 80px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue-pale);
+    color: var(--blue);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: var(--blue);
+    border-radius: 50%;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 span { color: var(--blue); }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--gray);
+    line-height: 1.7;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--blue);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--gray);
+    font-weight: 400;
+  }
+
+  /* UPLOAD CARD */
+  .upload-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 8px 48px rgba(13,27,62,0.08);
+  }
+
+  .upload-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--navy);
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--navy);
+    margin-bottom: 7px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 11px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--navy);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--blue);
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray-light);
+    position: relative;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--blue);
+    background: var(--blue-pale);
+  }
+
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .drop-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+  }
+
+  .drop-zone p {
+    font-size: 0.9rem;
+    color: var(--gray);
+  }
+
+  .drop-zone p strong {
+    color: var(--blue);
+  }
+
+  .drop-zone .file-name {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--success);
+    font-weight: 500;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .submit-btn:hover { background: #1558CC; transform: translateY(-1px); }
+  .submit-btn:disabled { background: #93A8D0; cursor: not-allowed; transform: none; }
+
+  /* LOADING */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,62,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .loading-overlay.active { display: flex; }
+
+  .spinner {
+    width: 52px;
+    height: 52px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .loading-sub {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+  }
+
+  /* RESULTADO */
+  .result-section {
+    display: none;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 48px 80px;
+  }
+
+  .result-section.active { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .result-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+
+  .result-meta {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn-outline {
+    background: white;
+    color: var(--navy);
+    border: 1.5px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+  .btn-primary {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover { background: #1558CC; }
+
+  /* PLAN TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--gray-light);
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 9px 22px;
+    border-radius: 7px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .tab.active {
+    background: white;
+    color: var(--navy);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* CHECKLIST */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .checklist-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .checklist-card-header {
+    padding: 14px 20px;
+    background: var(--navy);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .checklist-card-body {
+    padding: 16px 20px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--navy);
+    line-height: 1.5;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .check-box.checked {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .check-box.checked::after {
+    content: '✓';
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* INSUMOS */
+  .insumos-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .insumos-table th {
+    background: var(--navy);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+  }
+
+  .insumos-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--navy);
+  }
+
+  .insumos-table tr:last-child td { border-bottom: none; }
+  .insumos-table tr:nth-child(even) td { background: var(--gray-light); }
+
+  .badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge-blue { background: var(--blue-pale); color: var(--blue); }
+  .badge-green { background: #D1FAE5; color: #065F46; }
+  .badge-orange { background: #FEF3C7; color: #92400E; }
+
+  /* HOW IT WORKS */
+  .how {
+    background: var(--gray-light);
+    padding: 80px 48px;
+  }
+
+  .how-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 48px;
+    color: var(--navy);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step-num {
+    width: 44px;
+    height: 44px;
+    background: var(--blue);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+
+  .step h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .step p {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ERROR */
+  .error-box {
+    background: #FEE2E2;
+    border: 1.5px solid #FCA5A5;
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: #991B1B;
+    font-size: 0.9rem;
+    margin-top: 16px;
+    display: none;
+  }
+
+  .error-box.active { display: block; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--gray);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .hero { grid-template-columns: 1fr; padding: 40px 20px; gap: 40px; }
+    .hero h1 { font-size: 2rem; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .result-section { padding: 0 20px 60px; }
+    .how { padding: 60px 20px; }
+    .result-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#0D1B3E"/>
+      <path d="M10 10h10l4 4v12H10V10z" fill="none" stroke="#4A8EF5" stroke-width="1.5"/>
+      <path d="M20 10v4h4" fill="none" stroke="#4A8EF5" stroke-width="1.5"/>
+      <path d="M13 17h8M13 20h6M13 23h5" stroke="#4A8EF5" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="26" cy="26" r="5" fill="#1A6BF0"/>
+      <path d="M24 26l1.5 1.5L28 24" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Tech<em>ED</em></span>
+  </div>
+  <a href="#upload" class="nav-cta">Probar gratis →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="upload">
+  <div class="hero-left">
+    <div class="hero-badge">Inteligencia Artificial Industrial</div>
+    <h1>Planes de mantenimiento desde tus <span>manuales técnicos</span></h1>
+    <p>Subí el PDF del manual de cualquier equipo y en 2 minutos tenés el plan de mantenimiento preventivo completo, en español, listo para usar.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">2 min</span>
+        <span class="stat-label">Tiempo promedio</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">En español</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">PDF</span>
+        <span class="stat-label">Exportable</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="upload-card">
+    <h2>Generá tu plan ahora</h2>
+
+    <div class="form-group">
+      <label>Nombre de la empresa</label>
+      <input type="text" id="empresa" placeholder="Ej: Metalúrgica San Martín S.A.">
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de equipo</label>
+      <select id="tipo_equipo">
+        <option value="">Seleccioná el tipo de equipo</option>
+        <option>Compresor</option>
+        <option>Bomba hidráulica</option>
+        <option>Motor eléctrico</option>
+        <option>Generador / Grupo electrógeno</option>
+        <option>Caldera</option>
+        <option>Sistema de refrigeración / HVAC</option>
+        <option>Grúa / Puente grúa</option>
+        <option>Reductor / Caja de engranajes</option>
+        <option>Otro</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Manual técnico (PDF)</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="pdfFile" accept=".pdf">
+        <div class="drop-icon">📄</div>
+        <p><strong>Arrastrá el PDF aquí</strong> o hacé click para seleccionar</p>
+        <p style="font-size:0.78rem; margin-top:4px;">Solo archivos PDF · Máximo 10MB</p>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <button class="submit-btn" id="submitBtn" onclick="procesarManual()">
+      <span>⚡</span> Generar Plan de Mantenimiento
+    </button>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="how">
+  <div class="how-inner">
+    <div class="section-label">Proceso</div>
+    <div class="section-title">¿Cómo funciona?</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Subís el manual</h3>
+        <p>Cargá el PDF del fabricante en cualquier idioma. Aceptamos manuales de cualquier marca y modelo.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>La IA lo analiza</h3>
+        <p>Nuestro sistema extrae toda la información de mantenimiento, frecuencias, insumos y procedimientos.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Recibís el plan</h3>
+        <p>Obtenés el plan completo en español, con checklists por frecuencia y lista de repuestos, exportable a PDF.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADO -->
+<section class="result-section" id="resultSection">
+  <div class="result-header">
+    <div>
+      <h2 id="resultTitle">Plan de Mantenimiento</h2>
+      <div class="result-meta" id="resultMeta"></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn-outline" onclick="volverInicio()">← Procesar otro manual</button>
+      <button class="btn-primary" onclick="exportarPDF()">⬇ Exportar PDF</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="cambiarTab('checklist', this)">Checklist por frecuencia</button>
+    <button class="tab" onclick="cambiarTab('insumos', this)">Insumos y repuestos</button>
+    <button class="tab" onclick="cambiarTab('resumen', this)">Resumen ejecutivo</button>
+  </div>
+
+  <div id="tabChecklist">
+    <div class="checklist-grid" id="checklistGrid"></div>
+  </div>
+
+  <div id="tabInsumos" style="display:none">
+    <table class="insumos-table" id="insumosTable">
+      <thead>
+        <tr>
+          <th>Insumo / Repuesto</th>
+          <th>Frecuencia de cambio</th>
+          <th>Prioridad</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody id="insumosBody"></tbody>
+    </table>
+  </div>
+
+  <div id="tabResumen" style="display:none">
+    <div style="background: var(--gray-light); border-radius: 14px; padding: 32px; line-height: 1.8; font-size: 0.95rem; color: var(--navy);" id="resumenText"></div>
+  </div>
+</section>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Analizando el manual técnico...</div>
+  <div class="loading-sub">Esto puede tardar entre 30 y 90 segundos</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>TechED</strong> · Generador Automático de Planes de Mantenimiento · Buenos Aires, Argentina
+</footer>
+
+<script>
+// Drag & drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('pdfFile');
+const fileNameEl = document.getElementById('fileName');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    fileInput.files = e.dataTransfer.files;
+    fileNameEl.textContent = '✓ ' + file.name;
+  }
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) fileNameEl.textContent = '✓ ' + fileInput.files[0].name;
+});
+
+let planData = null;
+
+async function procesarManual() {
+  const empresa = document.getElementById('empresa').value.trim();
+  const tipoEquipo = document.getElementById('tipo_equipo').value;
+  const archivo = fileInput.files[0];
+  const errorBox = document.getElementById('errorBox');
+
+  errorBox.classList.remove('active');
+
+  if (!empresa) return mostrarError('Por favor ingresá el nombre de la empresa.');
+  if (!tipoEquipo) return mostrarError('Por favor seleccioná el tipo de equipo.');
+  if (!archivo) return mostrarError('Por favor seleccioná un archivo PDF.');
+  if (archivo.size > 10 * 1024 * 1024) return mostrarError('El archivo es muy grande. Máximo 10MB.');
+
+  document.getElementById('loadingOverlay').classList.add('active');
+  document.getElementById('submitBtn').disabled = true;
+
+  const formData = new FormData();
+  formData.append('pdf', archivo);
+  formData.append('empresa', empresa);
+  formData.append('tipo_equipo', tipoEquipo);
+
+  try {
+    const response = await fetch('/api/procesar', { method: 'POST', body: formData });
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error);
+
+    planData = data;
+    mostrarResultado(empresa, tipoEquipo, data);
+
+  } catch (err) {
+    mostrarError('Error al procesar el manual: ' + err.message);
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+function mostrarResultado(empresa, tipoEquipo, data) {
+  document.getElementById('resultTitle').textContent = 'Plan de Mantenimiento · ' + tipoEquipo;
+  document.getElementById('resultMeta').textContent = empresa + ' · Generado el ' + new Date().toLocaleDateString('es-AR', {day:'2-digit',month:'long',year:'numeric'});
+
+  // Checklist
+  const frecuencias = data.checklist || {};
+  const grid = document.getElementById('checklistGrid');
+  grid.innerHTML = '';
+  const iconos = { Diario: '🌅', Semanal: '📅', Mensual: '🗓️', Trimestral: '📆', Semestral: '📊', Anual: '🔧' };
+
+  Object.entries(frecuencias).forEach(([freq, items]) => {
+    if (!items || items.length === 0) return;
+    const card = document.createElement('div');
+    card.className = 'checklist-card';
+    card.innerHTML = `
+      <div class="checklist-card-header">${iconos[freq] || '🔧'} Mantenimiento ${freq}</div>
+      <div class="checklist-card-body">
+        ${items.map(item => `
+          <div class="check-item">
+            <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+            <span>${item}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Insumos
+  const insumos = data.insumos || [];
+  const tbody = document.getElementById('insumosBody');
+  tbody.innerHTML = insumos.map(ins => `
+    <tr>
+      <td>${ins.nombre}</td>
+      <td>${ins.frecuencia}</td>
+      <td><span class="badge ${ins.prioridad === 'Alta' ? 'badge-orange' : ins.prioridad === 'Media' ? 'badge-blue' : 'badge-green'}">${ins.prioridad}</span></td>
+      <td>${ins.observaciones || '-'}</td>
+    </tr>
+  `).join('');
+
+  // Resumen
+  document.getElementById('resumenText').innerHTML = (data.resumen || '').replace(/\n/g, '<br>');
+
+  // Mostrar
+  document.getElementById('resultSection').classList.add('active');
+  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cambiarTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabChecklist').style.display = tab === 'checklist' ? 'block' : 'none';
+  document.getElementById('tabInsumos').style.display = tab === 'insumos' ? 'block' : 'none';
+  document.getElementById('tabResumen').style.display = tab === 'resumen' ? 'block' : 'none';
+}
+
+function volverInicio() {
+  document.getElementById('resultSection').classList.remove('active');
+  document.getElementById('empresa').value = '';
+  document.getElementById('tipo_equipo').value = '';
+  fileInput.value = '';
+  fileNameEl.textContent = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function exportarPDF() {
+  window.open('exportar.php?data=' + encodeURIComponent(JSON.stringify(planData)), '_blank');
+}
+
+function mostrarError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = msg;
+  box.classList.add('active');
+}
+</script>
+</body>
+</html>
